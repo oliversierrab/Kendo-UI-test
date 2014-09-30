@@ -1,0 +1,105 @@
+/* 
+GAP Test 
+Developer: OLiver Sierra
+email: oliversierrab@gmail.com
+*/
+.alt { background-color: #EEE; }
+h1{
+	font-size: 20px;
+	margin: 0;
+	color: #2D96CD;
+}
+h2{
+	font-size: 18px;
+	margin: 0 0 0.5em;
+}
+p{
+	font-size: 10px;
+	margin: 0.1em 0;
+}
+img{
+	width: 100%;
+	height: auto;
+}
+.detail-view h1{
+	font-size: 25px;
+}
+.detail-view h2{
+	font-size: 20px;
+}
+.detail-view p{
+	font-size: 15px;
+}
+
+/*List View*/
+.product{
+	padding: 0.5em 0;
+	border-bottom: solid 1px #CCC;
+}
+.product .row{
+	position: relative;
+	z-index: 0;
+	margin: 0;
+}
+.product .cartooltipcontent{
+	position: absolute;
+	z-index: 1;
+	opacity: 0;
+	left: 10%;
+	bottom: 3%;
+	background: #f35800;
+	border-radius: 3px;
+	color: white;
+	padding: 5px;
+	transition: opacity 0.1s;
+}
+.product.cartooltip:hover .cartooltipcontent{
+	opacity: 1;
+}
+
+/*Edit view*/
+.edition-buttons{
+	background: #F3F3F3;
+	padding: 0.5em 0;
+}
+.edit-template input, .edit-template .k-numerictextbox{
+	width: 90%;
+	margin: 0.2em 0;
+}
+.spaced-row{
+	width: 90%;
+	margin: 0.2em 0;
+}
+.margin-row{
+	margin: 0.2em 0 !important;
+}
+.edit-template input[type="checkbox"]{
+	width: auto;
+}
+
+/*Search Bar*/
+.search-bar{
+	padding: 0.2em 0;
+
+}
+.search-bar input{
+	width: 80%;
+	display: inline-block;
+	height: 36px;
+	vertical-align: middle;
+
+}
+
+/*General*/
+.display-block{
+	display: block;
+}
+.container{
+	padding: 0;
+}
+.container.spaced{
+	padding: 0 5%;
+}
+.col-xs-6{
+	padding: 0;
+}

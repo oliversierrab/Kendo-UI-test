@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cars.com</title>
+    
+    <link href="styles/kendo.mobile.ios.min.css" rel="stylesheet" />
+    <link href="styles/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="styles/kendo.common-bootstrap.min.css" rel="stylesheet" />
+    <link href="styles/kendo.bootstrap.min.css" rel="stylesheet" />
+    <link href="styles/cars-bootstrap-reset.css" rel="stylesheet" />
+    <link href="styles/cars-styles.css" rel="stylesheet" /> 
+</head>
+<body>
+
+    <!-- Default View -->
+	<div id="home" data-role="view" data-layout="default">
+        <div class="container text-center spaced">
+            <div class="row search-bar">
+                <input type="text" class="form-control filterInput" placeholder="Brand Search">
+                <a class="k-button"><span class="km-icon km-search filterSearch"></span></a>
+            </div>
+            <div class="row margin-row">
+                <div class="container">
+                    <button type="button" class="btn btn-default btn-sm removeFilter" disabled="disabled">Remove Filters</button>
+                    <button type="button" class="btn btn-default btn-sm btnCompare" disabled="disabled">Compare Selected</button>
+                </div>
+            </div>
+        </div>
+		<div id="listViewBasic"></div>
+        <div class="k-pager-wrap">
+          <div id="pagerlist"></div>
+        </div>
+
+        <script type="text/x-kendo-tmpl" id="templatelist">
+          <div class="product #if(ProductDeal){# cartooltip #}#">
+            <div class="container">
+            <div class="row">
+              <div class="col-lg-6 col-xs-6">
+                <img src="services/json/images/#= id #.jpg" alt="#: ProductModel # image" />
+              </div>
+              <div class="col-lg-6 col-xs-6">
+                <h1>#:ProductBrand#</h1>
+                <h2>#:ProductModel#</h2>
+                <p>#:ProductYear#</p>
+                <p>#:ProductColor#</p>
+                <p>#:kendo.toString(ProductPrice, "c")#</p>
+              </div>
+              <div class="cartooltipcontent">Today&rsquo;s Deal</div>         
+            </div>
+            <div class="row text-center margin-row">
+                <a href="" class="viewDetail btn btn-default btn-sm" data-id="#= id #" data-brand="#:ProductBrand#"  data-model="#:ProductModel#" data-year="#:ProductYear#" data-color="#:ProductColor#" data-price="#:ProductPrice#">View Detail</a>
+                <a href="" class="addCompare btn btn-default btn-sm" data-id="#= id #">Add to Compare</a>
+            </div>
+            </div>  
+          </div>
+        </script>
+
+    </div>
+
+    <div id="detail" data-role="view" data-layout="default">
+        <div class="row">
+            <div class="col-lg-12 col-xs-12 detailImg">
+                <img src="services/json/images/1.jpg" alt="#: ProductModel # image" />
+            </div>                   
+        </div>
+        <div class="row detail-view">
+            <div class="col-xs-12">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Brand</th>
+                            <th class="detailBrand"></th>
+                        </tr>
+                        <tr>
+                            <td>Model</td>
+                            <td class="detailModel"></td>
+                        </tr>
+                        <tr>
+                            <td>Year</td>
+                            <td class="detailYear"></td>
+                        </tr>
+                        <tr>
+                            <td>Color</td>
+                            <td class="detailColor"></td>
+                        </tr>
+                        <tr>
+                            <td>Price</td>
+                            <td class="detailPrice"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <section data-role="layout" data-id="default">
+        <header data-role="header">
+            <div data-role="navbar">Cars.com</div>
+        </header>
+        <!--View content will render here-->
+        <footer data-role="footer">
+            <div data-role="tabstrip">
+                <a href="#home" data-icon="home">Home</a>
+                <a href="edit.html" data-icon="compose">Admin</a>
+            </div>
+        </footer>
+    </section>
+
+    <div id="compare" data-role="view" data-layout="default">
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Year</th>
+              <th>Color</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="listViewCompare">
+          </tbody>
+        </table>
+
+        
+         
+         <script type="text/x-kendo-tmpl" id="templateCompare">
+            <tr>
+              <td>#:ProductBrand#</td>
+              <td>#:ProductModel#</td>
+              <td>#:ProductYear#</td>
+              <td>#:ProductColor#</td>
+              <td>#:kendo.toString(ProductPrice, "c")#</td>
+            </tr>
+        </script>
+    </div>
+
+    
+	<script src="js/jquery.min.js"></script>
+    <script src="styles/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/kendo.all.min.js"></script>
+    <script>
+    var listView,
+        listViewBasic,
+        dataSourceList,
+        dataSourceCompare,
+        listViewCompare,
+        compareList = [],
+        app = new kendo.mobile.Application(document.body,
+        {   
+            transition:'slide'
+        });
+    
+    dataSourceList = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "services/data.php",
+                dataType: "json" // "jsonp" is required for cross-domain requests; use "json" for same-domain requests
+            }
+        },
+        sort: {
+            field: "ProductBrand",
+            dir: "asc"
+        },
+        filter: { field: "ProductBrand", operator: "startswith", value: "" },
+        schema: {
+            model: {
+                id: "id",
+                fields: {
+                    ProductPrice: { type: "number" },
+                    ProductBrand: { type: "string" },
+                    ProductModel: { type: "string" },
+                    ProductYear: { type: "number" },
+                    ProductColor: { type: "string" },
+                    ProductDeal: { type: "boolean" }
+                }
+            }
+        },
+        pageSize: 10
+    });
+
+    $("#listViewBasic").kendoListView({
+        dataSource: dataSourceList,
+        template: kendo.template($("#templatelist").html()),
+        filterable: {
+            field: "ProductName",
+            operator: "startswith"
+        }
+    });
+
+    listViewBasic = $("#listViewBasic").data("kendoListView");
+
+    $("#pagerlist").kendoPager({
+        dataSource: dataSourceList
+    });
+
+    var filter = dataSourceList.filter();
+    
+    $('.filterSearch').on('click', function(event) {
+        event.preventDefault();
+        $('.removeFilter').removeAttr('disabled');
+        filterList($('.filterInput').val());
+    });
+
+    function filterList(value){
+        dataSourceList.filter({
+            "field": "ProductBrand",
+            "operator": "startswith",
+            "value": value
+        });
+    }
+
+    $('.removeFilter').on('click', function(event) {
+        event.preventDefault();
+        filterList('');
+        $('.filterInput').val('');
+        $(this).attr('disabled', 'disabled');
+        resetCompare();
+    });
+
+    $('#listViewBasic').on('click', '.viewDetail', function(event) {
+        event.preventDefault();
+        $('.detailBrand').text( $(this).data('brand') );
+        $('.detailModel').text( $(this).data('model') );
+        $('.detailYear').text( $(this).data('year') );
+        $('.detailColor').text( $(this).data('color') );
+        $('.detailPrice').text( $(this).data('price') );
+        $('.detailImg').children('img').attr('src', 'services/json/images/'+$(this).data('id')+'.jpg');
+        app.navigate("#detail");
+    });
+
+    dataSourceCompare = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: "services/data.php",
+                    dataType: "json" // "jsonp" is required for cross-domain requests; use "json" for same-domain requests
+                }
+            },
+            filter: {
+                logic: "or",
+                filters: [
+                    
+                ]
+            },
+            schema: {
+                model: {
+                    id: "id",
+                    fields: {
+                        ProductPrice: { type: "number" },
+                        ProductBrand: { type: "string" },
+                        ProductModel: { type: "string" },
+                        ProductYear: { type: "number" },
+                        ProductColor: { type: "string" },
+                        ProductDeal: { type: "boolean" }
+                    }
+                }
+            },
+            sort: {
+              field: "ProductBrand",
+              dir: "asc"
+            }
+        });
+
+        $("#listViewCompare").kendoListView({
+            dataSource: dataSourceCompare,
+            template: kendo.template($("#templateCompare").html())
+        });
+
+        listViewCompare = $("#listView").data("kendoListView");
+
+        var filterCompare = dataSourceCompare.filter();
+    
+        $('.filterSearch').on('click', function(event) {
+            event.preventDefault();
+            filterListCompare($('.filterInput').val());
+        });
+
+        function filterListCompare(value){
+            dataSourceCompare.filter({
+                logic: "or",
+                filters: value}
+            );
+        }
+
+        $('#listViewBasic').on('click', '.addCompare', function(event) {
+            event.preventDefault();
+            if(!$(this).hasClass('added')){
+                $(this).removeClass('btn-default').addClass('btn-success').text('Added to Compare').addClass('added');
+                compareList[compareList.length] = { field: "id", operator: "eq", value: $(this).data('id') };
+            }else{
+                $(this).removeClass('btn-success').addClass('btn-default').text('Add to Compare').removeClass('added');
+                var index = compareList.indexOf($(this).data('id'))
+                compareList.splice(index,1);
+            }
+            if (compareList.length > 1 && compareList.length <= 3){
+                $('.btnCompare').removeAttr('disabled')
+            }else{
+                $('.btnCompare').attr('disabled', 'disabled');   
+            }
+        });
+
+        $('body').on('click', '.btnCompare', function(event) {
+            event.preventDefault();
+            filterListCompare(compareList);
+
+            app.navigate("#compare");
+        });
+
+        function resetCompare(){
+            $('.addCompare').removeClass('btn-success').addClass('btn-default').text('Add to Compare').removeClass('added');
+            compareList = [];
+            $('.btnCompare').attr('disabled', 'disabled');   
+        }
+
+        // GAP Test 
+        // Developer: OLiver Sierra
+        // email: oliversierrab@gmail.com
+
+    </script>
+    
+</body>
+</html>
